@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:project_intana_skom/firebase_option.dart';
 import 'package:project_intana_skom/views/login_page.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // SERTAKAN OPTIONS DI SINI (Wajib untuk Windows)
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await initializeDateFormatting('id_ID', null);
   runApp(const MyApp());
 }
 
@@ -26,9 +25,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Poppins',
         primaryColor: const Color(0xFF1D4ED8),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1D4ED8),
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1D4ED8)),
       ),
       home: const LoginPage(),
     );

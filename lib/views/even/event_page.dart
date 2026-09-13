@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_intana_skom/views/even/rangkuman_event_page.dart';
 import 'detail_event_page.dart';
 
 class EventPage extends StatelessWidget {
@@ -19,7 +20,8 @@ class EventPage extends StatelessWidget {
           'nama_event': 'Masuk sekolah',
           'tgl': '4 Januari 2026',
           'hari': 'Minggu',
-          'Ketrangan': 'Persiapan workshop selama 3 hari untuk memulai tahun pelajaran semester genap',
+          'Ketrangan':
+              'Persiapan workshop selama 3 hari untuk memulai tahun pelajaran semester genap',
         },
         {
           'nama_event': 'Libur memperingati Isra Mikraj Nabi Muhammad SAW',
@@ -28,7 +30,8 @@ class EventPage extends StatelessWidget {
           'Ketrangan': 'Seluruh siswa dan guru libur',
         },
         {
-          'nama_event': 'Pelaksanaan kegiatan keagamaan di bulan suci Ramadhan & pesantren kilat',
+          'nama_event':
+              'Pelaksanaan kegiatan keagamaan di bulan suci Ramadhan & pesantren kilat',
           'tgl': '23 - 28 Januari 2026',
           'hari': 'Jumat - Rabu',
           'Ketrangan': 'Siswa dan guru melakukan pengajian bersama',
@@ -44,7 +47,8 @@ class EventPage extends StatelessWidget {
       ],
       'Maret 2026': [
         {
-          'nama_event': 'Pelaksanaan kegiatan keagamaan di bulan suci Ramadhan & pesantren kilat',
+          'nama_event':
+              'Pelaksanaan kegiatan keagamaan di bulan suci Ramadhan & pesantren kilat',
           'tgl': '2 - 7 Maret 2026',
           'hari': 'Senin - Sabtu',
           'Ketrangan': 'Siswa dan guru melakukan pengajian bersama',
@@ -87,7 +91,8 @@ class EventPage extends StatelessWidget {
           'nama_event': 'Tes Kemampuan Akademik (TKA) siswa kelas IX',
           'tgl': '3 - 6 Mei 2026',
           'hari': 'Minggu - Rabu',
-          'Ketrangan': 'Khusus kelas IX dengan mapel BHS Indonesia dan Matematika',
+          'Ketrangan':
+              'Khusus kelas IX dengan mapel BHS Indonesia dan Matematika',
         },
         {
           'nama_event': 'Libur Nasional (Kenaikan Isa Al-Masih)',
@@ -139,7 +144,8 @@ class EventPage extends StatelessWidget {
           'nama_event': 'Jadwal penerimaan siswa baru',
           'tgl': '9 - 11 Juli 2026',
           'hari': 'Kamis - Sabtu',
-          'Ketrangan': 'Khusus siswa baru & kepanitiaan penerima siswa baru (28 siswa terdaftar)',
+          'Ketrangan':
+              'Khusus siswa baru & kepanitiaan penerima siswa baru (28 siswa terdaftar)',
         },
         {
           'nama_event': 'Pengenalan Lingkungan Sekolah (PLS) TP 2026-2027',
@@ -153,7 +159,8 @@ class EventPage extends StatelessWidget {
           'nama_event': 'Memperingati HUT Kemerdekaan Indonesia',
           'tgl': '13 - 17 Agustus 2026',
           'hari': 'Kamis - Senin',
-          'Ketrangan': 'Melakukan berbagai kegiatan untuk HUT Kemerdekaan (Seluruh warga sekolah)',
+          'Ketrangan':
+              'Melakukan berbagai kegiatan untuk HUT Kemerdekaan (Seluruh warga sekolah)',
         },
       ],
       'Oktober 2026': [
@@ -206,6 +213,26 @@ class EventPage extends StatelessWidget {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.bar_chart_rounded,
+              color: Color(0xFF1D4ED8),
+              size: 28,
+            ),
+            tooltip: 'Rangkuman Event',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      RangkumanEventPage(dataEventPerBulan: dataEventPerBulan),
+                ),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),

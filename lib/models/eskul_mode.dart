@@ -5,6 +5,7 @@ class EskulModel {
   final String jadwal;
   final String aktivitas;
   final String? infoPertandingan;
+  final DateTime generatedAt; // Perbaikan: DataTime -> DateTime
 
   EskulModel({
     required this.id,
@@ -13,6 +14,7 @@ class EskulModel {
     required this.jadwal,
     required this.aktivitas,
     this.infoPertandingan,
+    required this.generatedAt,
   });
 
   factory EskulModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,11 @@ class EskulModel {
       jadwal: json['jadwal'] ?? '',
       aktivitas: json['aktivitas'] ?? '',
       infoPertandingan: json['infoPertandingan'],
+      // Perbaikan: Parse string ISO8601 dari JSON menjadi DateTime.
+      // Jika data null/kosong, otomatis pakai waktu saat ini (DateTime.now()).
+      generatedAt: json['generatedAt'] != null
+          ? DateTime.parse(json['generatedAt'])
+          : DateTime.now(),
     );
   }
 
@@ -33,5 +40,7 @@ class EskulModel {
     'jadwal': jadwal,
     'aktivitas': aktivitas,
     'infoPertandingan': infoPertandingan,
+    // Perbaikan: Ubah DateTime ke string format ISO agar bisa disimpan ke DB/JSON
+    'generatedAt': generatedAt.toIso8601String(),
   };
 }

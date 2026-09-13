@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Tambahkan package intl untuk format tanggal
 import '../../models/schedule_model.dart';
 import '../../services/csp_scheduler_service.dart';
 
@@ -10,21 +11,17 @@ class GenerateJadwalPage extends StatefulWidget {
 }
 
 class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
-  // List untuk menampung inputan permintaan KBM dari User
   final List<ClassRequest> _requests = [];
   List<ScheduledSlot>? _hasilJadwal;
   bool _isProcessing = false;
 
-  // Controller & State untuk Form Input
   final _formKey = GlobalKey<FormState>();
   final _mapelController = TextEditingController();
 
-  // Pilihan Dropdown Kelas (Dibuat Unik agar tidak crash)
-  final List<String> _listKelas = ['Kelas VII', 'Kelas VIII', 'Kelas IX'];
+  final List<String> _listKelas = const ['Kelas VII', 'Kelas VIII', 'Kelas IX'];
   String? _selectedKelas;
 
-  // Pilihan Dropdown Guru (Dibuat Unik agar tidak crash)
-  final List<String> _listGuru = [
+  final List<String> _listGuru = const [
     'Bu Raisanti Baradi,S.Pd',
     'Bu Marlia Mahmud,S.Pd',
     'Bu Fahria Kasim,S.Pd',
@@ -35,7 +32,6 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
   ];
   String? _selectedGuru;
 
-  // Checkbox Masuk Lab
   bool _butuhLab = false;
 
   @override
@@ -44,7 +40,50 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
     super.dispose();
   }
 
-  // Fungsi Tambah Data KBM ke Daftar
+  // Helper untuk mengonversi Jam Ke menjadi Rentang Waktu
+  String _formatWaktu(int jamKe) {
+    switch (jamKe) {
+      case 1:
+        return '07.30 – 08.15';
+      case 2:
+        return '08.15 – 09.00';
+      case 3:
+        return '09.00 – 09.45';
+      case 4:
+        return '10.00 – 10.45';
+      case 5:
+        return '10.45 – 11.30';
+      case 6:
+        return '11.30 – 12.15';
+      default:
+        return 'Jam Ke-$jamKe';
+    }
+  }
+
+  // Helper untuk mendapatkan Tanggal Spesifik berdasarkan Nama Hari
+  String _getTanggalLengkap(String namaHari) {
+    DateTime now = DateTime.now();
+
+    // Pemetaan nama hari ke offset hari dari Senin
+    Map<String, int> mapHari = {
+      'Senin': DateTime.monday,
+      'Selasa': DateTime.tuesday,
+      'Rabu': DateTime.wednesday,
+      'Kamis': DateTime.thursday,
+      'Jumat': DateTime.friday,
+      'Sabtu': DateTime.saturday,
+    };
+
+    int targetDay = mapHari[namaHari] ?? DateTime.monday;
+    int currentDay = now.weekday;
+
+    // Hitung selisih hari menuju hari yang dimaksud di minggu berjalan
+    DateTime targetDate = now.add(Duration(days: targetDay - currentDay));
+
+    // Format tampilan tanggal (Contoh: 14 September 2026)
+    return DateFormat('d MMMM yyyy', 'id_ID').format(targetDate);
+  }
+
   void _tambahRequest() {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -57,10 +96,13 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
             butuhLab: _butuhLab,
           ),
         );
-        // Reset Form setelah ditambah
+
+        _formKey.currentState!.reset();
         _mapelController.clear();
+        _selectedKelas = null;
+        _selectedGuru = null;
         _butuhLab = false;
-        _hasilJadwal = null; // Reset hasil jadwal sebelumnya
+        _hasilJadwal = null;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -72,7 +114,6 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
     }
   }
 
-  // Fungsi Jalankan Algoritma CSP
   void _prosesCSP() async {
     if (_requests.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -86,10 +127,10 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
 
     setState(() => _isProcessing = true);
 
-    // Delay singkat untuk animasi komputasi
     await Future.delayed(const Duration(milliseconds: 400));
 
-    // Dipanggil langsung via kelas CSPSchedulerService (Static Method)
+    if (!mounted) return;
+
     final result = CSPSchedulerService.generateSchedule(_requests);
 
     setState(() {
@@ -119,7 +160,7 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isWideScreen = screenWidth > 600; // Flag untuk layar Tablet/Web
+    final isWideScreen = screenWidth > 600;
 
     return Scaffold(
       appBar: AppBar(
@@ -140,7 +181,7 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ================= FORM INPUT KBM =================
+                  // Form Input KBM
                   Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
@@ -153,8 +194,8 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: const [
+                            const Row(
+                              children: [
                                 Icon(Icons.tune, color: Color(0xFF1D4ED8)),
                                 SizedBox(width: 8),
                                 Text(
@@ -167,8 +208,6 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
                               ],
                             ),
                             const Divider(height: 24),
-
-                            // LAYOUT ADAPTIF
                             if (isWideScreen)
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,10 +222,7 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
                               const SizedBox(height: 12),
                               _buildGuruDropdown(),
                             ],
-
                             const SizedBox(height: 12),
-
-                            // INPUT MATA PELAJARAN
                             TextFormField(
                               controller: _mapelController,
                               decoration: const InputDecoration(
@@ -195,13 +231,12 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
                                 border: OutlineInputBorder(),
                                 isDense: true,
                               ),
-                              validator: (val) => (val == null || val.isEmpty)
+                              validator: (val) =>
+                                  (val == null || val.trim().isEmpty)
                                   ? 'Isi mata pelajaran'
                                   : null,
                             ),
                             const SizedBox(height: 8),
-
-                            // CHECKBOX MASUK LAB
                             SwitchListTile(
                               contentPadding: EdgeInsets.zero,
                               title: const Text('Menggunakan Ruang Lab?'),
@@ -214,8 +249,6 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
                                   setState(() => _butuhLab = val),
                             ),
                             const SizedBox(height: 12),
-
-                            // TOMBOL TAMBAH KE LIST
                             OutlinedButton.icon(
                               onPressed: _tambahRequest,
                               icon: const Icon(Icons.add_circle_outline),
@@ -233,7 +266,7 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
 
                   const SizedBox(height: 20),
 
-                  // ================= DAFTAR KBM INPUT =================
+                  // Daftar KBM Input
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -314,7 +347,7 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
 
                   const SizedBox(height: 20),
 
-                  // ================= TOMBOL GENERATE CSP =================
+                  // Tombol Generate
                   ElevatedButton.icon(
                     onPressed: _isProcessing ? null : _prosesCSP,
                     icon: _isProcessing
@@ -345,7 +378,7 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
 
                   const SizedBox(height: 24),
 
-                  // ================= HASIL JADWAL CSP =================
+                  // Hasil Jadwal dengan Hari, Tanggal, Bulan, Tahun
                   if (_hasilJadwal != null) ...[
                     const Text(
                       'Hasil Susunan Jadwal Bebas Bentrok:',
@@ -362,6 +395,8 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
                       itemCount: _hasilJadwal!.length,
                       itemBuilder: (context, index) {
                         final sesi = _hasilJadwal![index];
+                        final tanggalStr = _getTanggalLengkap(sesi.hari);
+
                         return Card(
                           color: const Color(0xFFF0FDF4),
                           shape: RoundedRectangleBorder(
@@ -390,7 +425,9 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
                               ),
                             ),
                             subtitle: Text(
-                              'Hari: ${sesi.hari} (Sesi ke-${sesi.jamKe})\nGuru: ${sesi.request.guru}\nRuang: ${sesi.ruangan}',
+                              'Hari/Tgl: ${sesi.hari}, $tanggalStr\n'
+                              'Waktu: ${_formatWaktu(sesi.jamKe)}\n'
+                              'Guru: ${sesi.request.guru} | Ruang: ${sesi.ruangan}',
                             ),
                             isThreeLine: true,
                           ),
@@ -407,7 +444,6 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
     );
   }
 
-  // Helper Widget untuk Dropdown Kelas
   Widget _buildKelasDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedKelas,
@@ -417,7 +453,7 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
         border: OutlineInputBorder(),
         isDense: true,
       ),
-      items: _listKelas.toSet().map((kelas) {
+      items: _listKelas.map((kelas) {
         return DropdownMenuItem(value: kelas, child: Text(kelas));
       }).toList(),
       onChanged: (val) => setState(() => _selectedKelas = val),
@@ -425,7 +461,6 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
     );
   }
 
-  // Helper Widget untuk Dropdown Guru
   Widget _buildGuruDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedGuru,
@@ -435,7 +470,7 @@ class _GenerateJadwalPageState extends State<GenerateJadwalPage> {
         border: OutlineInputBorder(),
         isDense: true,
       ),
-      items: _listGuru.toSet().map((guru) {
+      items: _listGuru.map((guru) {
         return DropdownMenuItem(value: guru, child: Text(guru));
       }).toList(),
       onChanged: (val) => setState(() => _selectedGuru = val),

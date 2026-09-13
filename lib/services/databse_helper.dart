@@ -18,11 +18,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
+    return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
   // Fungsi Pembuatan Tabel-Tabel
@@ -63,7 +59,8 @@ class DatabaseHelper {
         judul TEXT NOT NULL,
         deskripsi TEXT NOT NULL,
         tanggal TEXT NOT NULL,
-        lokasi TEXT NOT NULL
+        lokasi TEXT NOT NULL,
+        generatedAT TEXT
       )
     ''');
 
@@ -101,22 +98,22 @@ class DatabaseHelper {
     final db = await instance.database;
     final result = await db.query('event', orderBy: 'id DESC');
 
-    return result.map((json) => EventModel(
-      id: json['id'].toString(),
-      judul: json['judul'] as String,
-      deskripsi: json['deskripsi'] as String,
-      tanggal: json['tanggal'] as String,
-      lokasi: json['lokasi'] as String,
-    )).toList();
+    return result
+        .map(
+          (json) => EventModel(
+            id: json['id'].toString(),
+            judul: json['judul'] as String,
+            deskripsi: json['deskripsi'] as String,
+            tanggal: json['tanggal'] as String,
+            lokasi: json['lokasi'] as String,
+          ),
+        )
+        .toList();
   }
 
   // Delete (Hapus Event)
   Future<int> deleteEvent(int id) async {
     final db = await instance.database;
-    return await db.delete(
-      'event',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('event', where: 'id = ?', whereArgs: [id]);
   }
 }
